@@ -1,0 +1,1 @@
+# MundialCartas2026
