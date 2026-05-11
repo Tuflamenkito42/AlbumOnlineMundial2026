@@ -1,0 +1,529 @@
+:root {
+  color-scheme: light;
+  --app-bg: #f2f4f7;
+  --card-bg: #ffffff;
+  --card-border: #d0d7e2;
+  --text-main: #1f2937;
+  --text-soft: #5b6472;
+  --accent: #2563eb;
+  --accent-strong: #1d4ed8;
+  --owned: #0f766e;
+  --missing: #b91c1c;
+  --surface-weak: #eef2f7;
+  --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+:root.dark,
+body.dark,
+ion-app.dark {
+  color-scheme: dark;
+  --app-bg: #0f172a;
+  --card-bg: #111827;
+  --card-border: #2b3648;
+  --text-main: #e5e7eb;
+  --text-soft: #9aa5b5;
+  --accent: #60a5fa;
+  --accent-strong: #93c5fd;
+  --owned: #34d399;
+  --missing: #f87171;
+  --surface-weak: #1f2937;
+  --shadow: 0 12px 26px rgba(0, 0, 0, 0.3);
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  min-height: 100%;
+  background: var(--app-bg);
+  color: var(--text-main);
+  font-family: 'Trebuchet MS', 'Segoe UI', ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--app-bg);
+}
+
+.app-content::part(background) {
+  background: var(--app-bg);
+}
+
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 28px;
+}
+
+.overview-shell,
+.controls-shell,
+.section-shell {
+  position: relative;
+  z-index: 1;
+  margin: 14px 14px 0;
+  border: 1px solid var(--card-border);
+  border-radius: 30px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+}
+
+.overview-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.overview-actions {
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+}
+
+.language-dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+.language-select {
+  padding: 10px 14px;
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  background: var(--surface-weak);
+  color: var(--text-main);
+  font: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 20px;
+  padding-right: 32px;
+}
+
+.language-select:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(15, 98, 254, 0.12);
+}
+
+.language-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.1);
+}
+
+.language-select option {
+  background: var(--card-bg);
+  color: var(--text-main);
+  padding: 8px;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  background: var(--surface-weak);
+  color: var(--text-main);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+}
+
+.theme-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  color: var(--accent-strong);
+}
+
+.overview-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 2.9rem);
+  line-height: 1;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.subtitle {
+  margin: 10px 0 0;
+  max-width: 36rem;
+  color: var(--text-soft);
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stat-card,
+.progress-card {
+  border-radius: 24px;
+  background: var(--surface-weak);
+  border: 1px solid var(--card-border);
+  padding: 16px;
+}
+
+.stat-card span,
+.progress-meta span,
+.section-head p,
+.sticker-group,
+.sticker-category,
+.section-chip {
+  color: var(--text-soft);
+}
+
+.stat-card strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.8rem;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.is-owned strong {
+  color: var(--owned);
+}
+
+.is-missing strong {
+  color: var(--missing);
+}
+
+.is-total strong {
+  color: var(--accent-strong);
+}
+
+.progress-card {
+  margin-top: 12px;
+}
+
+.complete-message {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--surface-weak);
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
+.progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.progress-meta strong {
+  font-size: 1.1rem;
+}
+
+.progress-track {
+  overflow: hidden;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--surface-weak);
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 220ms ease;
+}
+
+.controls-shell {
+  display: grid;
+  gap: 12px;
+}
+
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.section-kicker {
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  letter-spacing: -0.03em;
+}
+
+.section-head p {
+  margin: 6px 0 0;
+}
+
+.section-chip {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--surface-weak);
+  border: 1px solid var(--card-border);
+  white-space: nowrap;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sticker-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 190px;
+  padding: 16px;
+  border: 1px solid var(--card-border);
+  border-radius: 26px;
+  background: var(--card-bg);
+  color: var(--text-main);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.1);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 160ms ease, opacity 160ms ease, border-color 160ms ease, filter 160ms ease;
+  overflow: hidden;
+}
+
+.sticker-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 5px;
+  background: var(--accent);
+  opacity: 0.7;
+}
+
+.sticker-card:active {
+  transform: scale(0.98);
+}
+
+.sticker-card.is-owned {
+  opacity: 0.74;
+  filter: saturate(0.92);
+  border-color: color-mix(in srgb, var(--owned) 55%, var(--card-border));
+}
+
+.sticker-card.is-owned .owned-overlay {
+  background: rgba(62, 210, 159, 0.18);
+  color: var(--owned);
+}
+
+.sticker-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.sticker-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--surface-weak);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+}
+
+.sticker-code {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(15, 98, 254, 0.14);
+  color: var(--accent);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+}
+
+.sticker-series {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(246, 200, 76, 0.18);
+  color: var(--accent-strong);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+}
+
+.sticker-series[data-series='Teams'] {
+  background: var(--surface-weak);
+  color: var(--text-soft);
+}
+
+.sticker-series[data-series='History'] {
+  background: rgba(196, 138, 22, 0.16);
+  color: var(--accent-strong);
+}
+
+.sticker-series[data-series='Extra'],
+.sticker-series[data-series='CC'] {
+  background: rgba(15, 98, 254, 0.14);
+  color: var(--accent);
+}
+
+.sticker-series[data-series='Panini'] {
+  background: rgba(21, 141, 99, 0.14);
+  color: var(--owned);
+}
+
+.sticker-country {
+  margin-top: 6px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.05;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.sticker-name {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: var(--text-soft);
+}
+
+.sticker-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.owned-overlay {
+  margin-top: auto;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--surface-weak);
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.empty-state {
+  padding: 22px;
+  border-radius: 24px;
+  background: var(--surface-weak);
+  text-align: center;
+}
+
+.empty-state h2,
+.empty-state p {
+  margin: 0;
+}
+
+.empty-state p {
+  margin-top: 8px;
+  color: var(--text-soft);
+}
+
+ion-searchbar,
+ion-segment {
+  --background: var(--surface-weak);
+  --border-radius: 18px;
+  --box-shadow: none;
+  --color: var(--text-main);
+  --placeholder-color: color-mix(in srgb, var(--text-main) 48%, transparent);
+  --icon-color: color-mix(in srgb, var(--text-main) 72%, transparent);
+}
+
+ion-searchbar {
+  --placeholder-font-weight: 500;
+}
+
+ion-segment-button {
+  --color: var(--text-soft);
+  --color-checked: var(--text-main);
+  --indicator-color: var(--accent);
+  min-height: 48px;
+}
+
+ion-toggle {
+  --track-background: var(--surface-weak);
+  --track-background-checked: color-mix(in srgb, var(--accent) 35%, var(--surface-weak));
+  --handle-background: var(--text-main);
+  --handle-background-checked: #ffffff;
+}
+
+@media (min-width: 740px) {
+  .app-shell {
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  .sticker-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1040px) {
+  .sticker-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 739px) {
+  .overview-header,
+  .section-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .overview-actions {
+    justify-items: stretch;
+  }
+
+  .language-dropdown {
+    width: 100%;
+  }
+
+  .language-select {
+    width: 100%;
+  }
+
+  .stats-row,
+  .sticker-grid {
+    grid-template-columns: 1fr;
+  }
+}
