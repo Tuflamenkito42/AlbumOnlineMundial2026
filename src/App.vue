@@ -36,7 +36,10 @@
             :owned-set="ownedSet"
             :copy="copy.grid"
             :card-copy="copy.card"
+            :locale="locale"
+            :extra-tiers="extraTiers"
             @toggle="toggleSticker"
+            @select-extra="handleExtraSelection"
           />
         </section>
       </main>
@@ -52,15 +55,17 @@ import CollectionOverview from './components/CollectionOverview.vue';
 import StickerGrid from './components/StickerGrid.vue';
 import { stickers } from './data/stickers';
 import { useCollection } from './composables/useCollection';
-import type { AppCopy, Locale } from './types';
+import type { AppCopy, ExtraTier, Locale } from './types';
 
 const {
   filter,
+  extraTiers,
   missingCount,
   ownedCount,
   ownedSet,
   progressPercent,
   query,
+  setExtraTier,
   toggleSticker,
   totalCount,
   visibleStickers,
@@ -78,8 +83,9 @@ const translations: Record<Locale, AppCopy> = {
       eyebrow: 'Álbum digital',
       title: 'Mundial Cartas 2026',
       subtitle: 'Ordenado por país, con un tema claro y controles rápidos para seguir tu colección.',
-      darkMode: 'Modo oscuro',
-      lightMode: 'Modo claro',
+      language: 'Idioma',
+      darkMode: 'Oscuro',
+      lightMode: 'Claro',
       progress: 'Progreso',
       owned: 'Tengo',
       missing: 'Me faltan',
@@ -116,8 +122,9 @@ const translations: Record<Locale, AppCopy> = {
       eyebrow: 'Digital album',
       title: 'World Cup Stickers 2026',
       subtitle: 'Ordered by country, with a clearer theme and faster controls to track your collection.',
-      darkMode: 'Dark mode',
-      lightMode: 'Light mode',
+      language: 'Language',
+      darkMode: 'Dark',
+      lightMode: 'Light',
       progress: 'Progress',
       owned: 'Owned',
       missing: 'Missing',
@@ -154,8 +161,9 @@ const translations: Record<Locale, AppCopy> = {
       eyebrow: 'Цифровой альбом',
       title: 'Стикеры ЧМ 2026',
       subtitle: 'Сортировка по стране, более выразительная тема и быстрые элементы управления.',
-      darkMode: 'Тёмная тема',
-      lightMode: 'Светлая тема',
+      language: 'Язык',
+      darkMode: 'Тёмная',
+      lightMode: 'Светлая',
       progress: 'Прогресс',
       owned: 'Есть',
       missing: 'Не хватает',
@@ -192,8 +200,9 @@ const translations: Record<Locale, AppCopy> = {
       eyebrow: '数字贴纸册',
       title: '2026 世界杯贴纸',
       subtitle: '按国家排序，更清晰的主题，更快的收藏管理。',
-      darkMode: '深色模式',
-      lightMode: '浅色模式',
+      language: '语言',
+      darkMode: '深色',
+      lightMode: '浅色',
       progress: '进度',
       owned: '已拥有',
       missing: '缺少',
@@ -249,6 +258,10 @@ function setLocale(value: Locale) {
   locale.value = value;
 }
 
+function handleExtraSelection(stickerNumber: number, tier: ExtraTier) {
+  setExtraTier(stickerNumber, tier);
+}
+
 function canUseStorage() {
   return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 }
@@ -260,13 +273,15 @@ function applyTheme(value: boolean) {
 
 function loadTheme() {
   if (!canUseStorage()) {
-    applyTheme(darkMode.value);
+    applyTheme(false);
     return;
   }
 
   const saved = localStorage.getItem(themeKey);
   if (saved !== null) {
     darkMode.value = saved === 'true';
+  } else {
+    darkMode.value = false;
   }
   applyTheme(darkMode.value);
 }

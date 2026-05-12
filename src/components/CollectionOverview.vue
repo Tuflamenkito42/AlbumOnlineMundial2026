@@ -8,16 +8,33 @@
       </div>
 
       <div class="overview-actions">
-        <div class="language-dropdown">
-          <select
-            :value="locale"
-            @change="handleLocaleChange"
-            class="language-select"
+        <div ref="languageMenuRef" class="language-dropdown">
+          <button
+            type="button"
+            class="language-trigger"
+            :aria-expanded="languageMenuOpen"
+            aria-haspopup="menu"
+            @click="languageMenuOpen = !languageMenuOpen"
           >
-            <option v-for="(info, code) in localeOptions" :key="code" :value="code">
-              {{ info.flag }} {{ info.label }}
-            </option>
-          </select>
+            <img class="language-flag" :src="selectedLocale.flagSrc" :alt="selectedLocale.flagAlt" />
+            <span>{{ copy.language }}</span>
+          </button>
+
+          <div v-if="languageMenuOpen" class="language-panel" role="menu">
+            <button
+              v-for="option in localeOptions"
+              :key="option.value"
+              type="button"
+              class="language-option"
+              :class="{ 'is-active': locale === option.value }"
+              role="menuitemradio"
+              :aria-checked="locale === option.value"
+              @click="selectLocale(option.value)"
+            >
+              <img class="language-flag" :src="option.flagSrc" :alt="option.flagAlt" />
+              <span>{{ option.label }}</span>
+            </button>
+          </div>
         </div>
 
         <button
@@ -25,11 +42,14 @@
           class="theme-toggle"
           :class="{ 'is-dark': darkMode }"
           :aria-pressed="darkMode"
-          :aria-label="themeLabel"
+          :aria-label="`${copy.darkMode}/${copy.lightMode}`"
           @click="$emit('update:darkMode', !darkMode)"
         >
-          <span class="theme-icon" aria-hidden="true">{{ darkMode ? '☀' : '🌙' }}</span>
-          <span>{{ themeLabel }}</span>
+          <span class="theme-toggle-sun" aria-hidden="true">☀️</span>
+          <span class="theme-toggle-track" aria-hidden="true">
+            <span class="theme-toggle-thumb"></span>
+          </span>
+          <span class="theme-toggle-moon" aria-hidden="true">🌙</span>
         </button>
       </div>
     </div>
@@ -63,11 +83,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import type { AppCopy, Locale } from '../types';
-import { LOCALE_FLAGS } from '../utils/countryFlags';
+import { LOCALE_FLAG_OPTIONS } from '../utils/localeFlags';
 
-const localeOptions = LOCALE_FLAGS;
+const localeOptions = LOCALE_FLAG_OPTIONS;
 
 interface Props {
   ownedCount: number;
@@ -87,10 +107,30 @@ const emit = defineEmits<{
   (event: 'update:locale', value: Locale): void;
 }>();
 
-function handleLocaleChange(event: Event) {
-  const target = event.target as HTMLSelectElement;
-  emit('update:locale', target.value as Locale);
+const languageMenuOpen = ref(false);
+const languageMenuRef = ref<HTMLElement | null>(null);
+const selectedLocale = computed(
+  () => localeOptions.find((option) => option.value === props.locale) ?? localeOptions[0],
+);
+const themeLabel = computed(() => (props.darkMode ? props.copy.lightMode : props.copy.darkMode));
+
+function selectLocale(value: Locale) {
+  emit('update:locale', value);
+  languageMenuOpen.value = false;
 }
 
-const themeLabel = computed(() => (props.darkMode ? props.copy.lightMode : props.copy.darkMode));
+function handleDocumentClick(event: MouseEvent) {
+  const target = event.target as Node | null;
+  if (languageMenuRef.value && target && !languageMenuRef.value.contains(target)) {
+    languageMenuOpen.value = false;
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleDocumentClick);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleDocumentClick);
+});
 </script>

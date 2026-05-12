@@ -3,7 +3,9 @@ import type { Sticker } from '../types';
 
 const COUNTRY_SUFFIXES = [
   'South Africa',
+  'Bosnia and Herzegovina',
   'Bosnia-Herzegovina',
+  'Czech Republic',
   'Korea Republic',
   'Republic of Korea',
   'South Korea',
@@ -13,6 +15,7 @@ const COUNTRY_SUFFIXES = [
   'Saudi Arabi',
   'Saudi',
   'Cote d Ivoire',
+  'Ivory Coast',
   "Côte d'Ivoire",
   'Curaçao',
   'Congo DR',
@@ -29,6 +32,7 @@ const COUNTRY_SUFFIXES = [
   'Argentina',
   'Brazil',
   'Canada',
+  'Haiti',
   'Spain',
   'Uruguay',
   'Morocco',
@@ -117,6 +121,8 @@ const TITLE_SUFFIXES = [
   'Extra / Silver',
   'Extra / Gold',
   'Extra / Base',
+  "McDonald's Exclusive",
+  'McDonalds Exclusive',
   'Coca Cola / USA Canada',
   'Coca Cola / Latin America',
   'FIFA World Cup History foil',
@@ -171,6 +177,52 @@ function splitCountrySuffix(text: string) {
   };
 }
 
+function stripRepeatedCountry(title: string, country: string) {
+  const cleanedTitle = title.trim();
+  const cleanedCountry = country.trim();
+
+  if (!cleanedTitle || !cleanedCountry) {
+    return cleanedTitle;
+  }
+
+  const foldedTitle = fold(cleanedTitle);
+  const foldedCountry = fold(cleanedCountry);
+
+  if (foldedTitle === foldedCountry) {
+    return '';
+  }
+
+  if (foldedTitle.endsWith(` ${foldedCountry}`)) {
+    return cleanedTitle.slice(0, cleanedTitle.length - cleanedCountry.length).trim();
+  }
+
+  return cleanedTitle;
+}
+
+function splitSpecialSection(text: string, marker: string) {
+  const index = text.toLowerCase().lastIndexOf(marker.toLowerCase());
+  if (index === -1) {
+    return '';
+  }
+
+  return text.slice(index).trim();
+}
+
+function getExtraTier(section: string) {
+  const match = section.match(/Extra\s*\/\s*(Base|Gold|Silver|Bronze)$/i);
+  if (!match) {
+    return undefined;
+  }
+
+  const tier = match[1].toLowerCase();
+  if (tier === 'base') return 'Base';
+  if (tier === 'gold') return 'Gold';
+  if (tier === 'silver') return 'Silver';
+  if (tier === 'bronze') return 'Bronze';
+
+  return undefined;
+}
+
 function normalizeHeadline(text: string) {
   return text
     .replace(/\s+/g, ' ')
@@ -190,6 +242,7 @@ function deriveSticker(item: any, albumOrder: number): Sticker {
       number: albumOrder,
       name: 'Panini Logo',
       country: 'Panini',
+      section: 'Panini',
       category: 'Logo',
       group: 'Panini',
       series: 'Panini',
@@ -213,6 +266,7 @@ function deriveSticker(item: any, albumOrder: number): Sticker {
         number: albumOrder,
         name: title,
         country: 'FIFA World Cup 2026',
+        section: 'FIFA World Cup 2026',
         category: 'FWC',
         group: 'FWC',
         series: 'FWC',
@@ -229,6 +283,7 @@ function deriveSticker(item: any, albumOrder: number): Sticker {
       number: albumOrder,
       name: title,
       country,
+      section: 'FIFA World Cup History',
       category: 'FWC',
       group: 'History',
       series: 'History',
@@ -238,29 +293,54 @@ function deriveSticker(item: any, albumOrder: number): Sticker {
   if (code.startsWith('CC-')) {
     const leftPart = normalizedRaw.replace(/\s+Coca Cola\s*\/.*$/i, '').trim();
     const { title, country } = splitCountrySuffix(leftPart);
+    const displayName = stripRepeatedCountry(title || leftPart, country);
+    const section = splitSpecialSection(normalizedRaw, 'Coca Cola /') || 'Coca Cola';
 
     return {
       code,
       albumOrder,
       number: albumOrder,
-      name: title || leftPart,
+      name: displayName,
       country,
+      section,
       category: 'Promo',
       group: 'Coca Cola',
       series: 'CC',
     };
   }
 
-  if (/\bExtra\s*\/\s*/i.test(normalizedRaw)) {
-    const leftPart = normalizedRaw.replace(/\s+Extra\s*\/.*$/i, '').trim();
+  if (/McDonald's Exclusive/i.test(normalizedRaw)) {
+    const leftPart = normalizedRaw.replace(/\s+McDonald's Exclusive$/i, '').replace(/\s+McDonalds Exclusive$/i, '').trim();
     const { title, country } = splitCountrySuffix(leftPart);
+    const displayName = stripRepeatedCountry(title || leftPart, country);
 
     return {
       code,
       albumOrder,
       number: albumOrder,
-      name: title || leftPart,
+      name: displayName,
       country,
+      section: "McDonald's Exclusive",
+      category: 'Promo',
+      group: "McDonald's",
+      series: 'Teams',
+    };
+  }
+
+  if (/\bExtra\s*\/\s*/i.test(normalizedRaw)) {
+    const leftPart = normalizedRaw.replace(/\s+Extra\s*\/.*$/i, '').trim();
+    const { title, country } = splitCountrySuffix(leftPart);
+    const displayName = stripRepeatedCountry(title || leftPart, country);
+    const section = splitSpecialSection(normalizedRaw, 'Extra /') || 'Extra';
+
+    return {
+      code,
+      albumOrder,
+      number: albumOrder,
+      name: displayName,
+      country,
+      section,
+      extraTier: getExtraTier(section),
       category: 'Extra',
       group: 'Extra',
       series: 'Extra',
@@ -278,6 +358,7 @@ function deriveSticker(item: any, albumOrder: number): Sticker {
       number: albumOrder,
       name,
       country,
+      section: 'FIFA World Cup History',
       category: 'FWC',
       group: 'History',
       series: 'History',
@@ -285,7 +366,7 @@ function deriveSticker(item: any, albumOrder: number): Sticker {
   }
 
   const { title, country } = splitCountrySuffix(normalizedRaw);
-  const displayName = title || normalizedRaw;
+  const displayName = stripRepeatedCountry(title || normalizedRaw, country);
 
   return {
     code,
@@ -293,6 +374,7 @@ function deriveSticker(item: any, albumOrder: number): Sticker {
     number: albumOrder,
     name: displayName,
     country,
+    section: country,
     category: code.startsWith('CC') ? 'Promo' : 'Team',
     group: code.startsWith('CC') ? 'Coca Cola' : 'Teams',
     series: 'Teams',

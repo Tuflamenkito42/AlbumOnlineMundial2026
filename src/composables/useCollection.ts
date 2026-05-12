@@ -1,5 +1,5 @@
 import { computed, onMounted, ref, watch } from 'vue';
-import type { PersistedProgress, Sticker, StickerFilter } from '../types';
+import type { ExtraTier, PersistedProgress, Sticker, StickerFilter } from '../types';
 
 const STORAGE_KEY = 'mundial-cartas-2026-progress';
 
@@ -25,14 +25,15 @@ function loadProgress(): PersistedProgress | null {
   }
 }
 
-function saveProgress(ownedIds: number[]) {
+function saveProgress(ownedIds: number[], extraTiers: Record<string, ExtraTier>) {
   if (!canUseStorage()) {
     return;
   }
 
   const payload: PersistedProgress = {
-    version: 1,
+    version: 2,
     ownedIds: [...ownedIds].sort((a, b) => a - b),
+    extraTiers,
     updatedAt: new Date().toISOString(),
   };
 
@@ -41,6 +42,7 @@ function saveProgress(ownedIds: number[]) {
 
 export function useCollection(stickers: Sticker[]) {
   const ownedIds = ref<number[]>([]);
+  const extraTiers = ref<Record<number, ExtraTier>>({});
   const query = ref('');
   const filter = ref<StickerFilter>('all');
 
@@ -48,13 +50,17 @@ export function useCollection(stickers: Sticker[]) {
     const saved = loadProgress();
     if (saved) {
       ownedIds.value = saved.ownedIds.filter((id) => id >= 1 && id <= stickers.length);
+      extraTiers.value = Object.fromEntries(
+        Object.entries(saved.extraTiers ?? {}).filter(([, tier]) => ['Base', 'Gold', 'Silver', 'Bronze'].includes(tier)),
+      ) as Record<number, ExtraTier>;
     }
   });
 
   watch(
-    ownedIds,
+    [ownedIds, extraTiers],
     (value) => {
-      saveProgress(value);
+      const [currentOwnedIds, currentExtraTiers] = value;
+      saveProgress(currentOwnedIds, currentExtraTiers as Record<string, ExtraTier>);
     },
     { deep: true },
   );
@@ -99,11 +105,6 @@ export function useCollection(stickers: Sticker[]) {
           .some((value) => value.toLowerCase().includes(lowerSearch));
       })
       .sort((left, right) => {
-        // Sort by country first, then by albumOrder within each country
-        const countryCompare = left.country.localeCompare(right.country);
-        if (countryCompare !== 0) {
-          return countryCompare;
-        }
         return left.albumOrder - right.albumOrder;
       });
   });
@@ -134,12 +135,14 @@ export function useCollection(stickers: Sticker[]) {
 
   function resetCollection() {
     ownedIds.value = [];
+    extraTiers.value = {};
   }
 
   function exportProgress() {
     const payload: PersistedProgress = {
-      version: 1,
+      version: 2,
       ownedIds: [...ownedIds.value].sort((a, b) => a - b),
+      extraTiers: extraTiers.value,
       updatedAt: new Date().toISOString(),
     };
 
@@ -155,6 +158,21 @@ export function useCollection(stickers: Sticker[]) {
     ownedIds.value = parsed.ownedIds
       .filter((id) => Number.isInteger(id) && id >= 1 && id <= stickers.length)
       .sort((a, b) => a - b);
+
+    extraTiers.value = Object.fromEntries(
+      Object.entries(parsed.extraTiers ?? {}).filter(([, tier]) => ['Base', 'Gold', 'Silver', 'Bronze'].includes(tier)),
+    ) as Record<number, ExtraTier>;
+  }
+
+  function setExtraTier(number: number, tier: ExtraTier) {
+    extraTiers.value = {
+      ...extraTiers.value,
+      [number]: tier,
+    };
+  }
+
+  function getExtraTier(number: number) {
+    return extraTiers.value[number] ?? null;
   }
 
   return {
@@ -162,13 +180,16 @@ export function useCollection(stickers: Sticker[]) {
     missingCount,
     ownedCount,
     ownedIds,
+    extraTiers,
     ownedSet,
     progressPercent,
     query,
     resetCollection,
     exportProgress,
     importProgress,
+    getExtraTier,
     setOwned,
+    setExtraTier,
     toggleSticker,
     totalCount,
     visibleStickers,
