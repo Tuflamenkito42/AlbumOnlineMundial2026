@@ -15,14 +15,15 @@
         <div class="sticker-grid">
           <StickerCard
             v-for="sticker in block.stickers"
-            :key="sticker.number"
+            :key="sticker.albumOrder"
             :sticker="sticker"
-            :owned="ownedSet.has(sticker.number)"
+            :owned="isStickerCardOwned(sticker)"
             :copy="cardCopy"
             :locale="locale"
-            :selected-extra-tier="extraTiers[sticker.number] ?? sticker.extraTier ?? null"
-            @toggle="$emit('toggle', sticker.number)"
-            @select-extra="$emit('select-extra', sticker.number, $event)"
+            :selected-tiers="extraTiers[sticker.albumOrder] ?? {}"
+            @toggle="$emit('toggle', sticker.albumOrder)"
+            @toggle-tier="$emit('toggle-tier', sticker.albumOrder, $event)"
+            @decrement-tier="$emit('decrement-tier', sticker.albumOrder, $event)"
           />
         </div>
       </section>
@@ -33,7 +34,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import StickerCard from './StickerCard.vue';
-import type { AppCopy, ExtraTier, Locale, Sticker } from '../types';
+import type { AppCopy, ExtraTier, ExtraTierCounts, Locale, Sticker } from '../types';
 import { getCountryFlagImage, getSectionDisplayName } from '../utils/countryFlags';
 
 type GridBlock = {
@@ -49,20 +50,40 @@ const props = defineProps<{
   copy: AppCopy['grid'];
   cardCopy: AppCopy['card'];
   locale: Locale;
-  extraTiers: Record<number, ExtraTier>;
+  extraTiers: Record<number, ExtraTierCounts>;
 }>();
+
+function extraTierSum(counts: ExtraTierCounts | undefined): number {
+  if (!counts) {
+    return 0;
+  }
+  return Object.values(counts).reduce((sum, n) => sum + (typeof n === 'number' ? n : 0), 0);
+}
+
+function isStickerCardOwned(sticker: Sticker): boolean {
+  if (props.ownedSet.has(sticker.albumOrder)) {
+    return true;
+  }
+  if (sticker.series === 'Extra' && sticker.group === 'Extra') {
+    return extraTierSum(props.extraTiers[sticker.albumOrder]) > 0;
+  }
+  return false;
+}
 
 defineEmits<{
   (event: 'toggle', number: number): void;
-  (event: 'select-extra', number: number, value: ExtraTier): void;
+  (event: 'toggle-tier', number: number, tier: ExtraTier): void;
+  (event: 'decrement-tier', number: number, tier: ExtraTier): void;
 }>();
 
 const blocks = computed<GridBlock[]>(() => {
   const result: GridBlock[] = [];
+  const extraStickers = props.stickers.filter((sticker) => sticker.series === 'Extra');
+  const regularStickers = props.stickers.filter((sticker) => sticker.series !== 'Extra');
   let previousSection = '';
   let currentBlock: GridBlock | null = null;
 
-  for (const sticker of props.stickers) {
+  for (const sticker of regularStickers) {
     if (sticker.section !== previousSection) {
       previousSection = sticker.section;
       currentBlock = {
@@ -76,6 +97,15 @@ const blocks = computed<GridBlock[]>(() => {
     }
 
     currentBlock?.stickers.push(sticker);
+  }
+
+  if (extraStickers.length > 0) {
+    result.push({
+      key: 'section-extra-sticker',
+      label: props.locale === 'en' ? 'Extra Sticker' : 'Extra Sticker',
+      image: null,
+      stickers: extraStickers,
+    });
   }
 
   return result;

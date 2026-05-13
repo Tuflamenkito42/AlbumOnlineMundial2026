@@ -3,7 +3,8 @@
     <ion-searchbar
       :model-value="query"
       :placeholder="copy.searchPlaceholder"
-      inputmode="numeric"
+      inputmode="search"
+      enterkeyhint="search"
       show-clear-button="focus"
       @ionInput="$emit('update:query', ($event.detail.value ?? '').toString())"
     />

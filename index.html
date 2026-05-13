@@ -9,6 +9,29 @@
       name="description"
       content="Álbum digital para controlar cartas y pegatinas del Mundial 2026 en iOS y Android."
     />
+    <style>
+      /* Prevent flash of wrong theme by setting theme early */
+      :root {
+        color-scheme: light;
+      }
+      
+      :root.dark {
+        color-scheme: dark;
+      }
+    </style>
+    <script>
+      (function() {
+        const themeKey = 'mundial-cartas-2026-theme';
+        try {
+          const saved = localStorage.getItem(themeKey);
+          if (saved === 'true') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {
+          // localStorage no disponible, ignorar
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

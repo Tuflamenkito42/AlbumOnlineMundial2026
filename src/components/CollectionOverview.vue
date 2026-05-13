@@ -45,11 +45,11 @@
           :aria-label="`${copy.darkMode}/${copy.lightMode}`"
           @click="$emit('update:darkMode', !darkMode)"
         >
-          <span class="theme-toggle-sun" aria-hidden="true">☀️</span>
+          <span class="theme-toggle-label-text">{{ copy.lightMode }}</span>
           <span class="theme-toggle-track" aria-hidden="true">
             <span class="theme-toggle-thumb"></span>
           </span>
-          <span class="theme-toggle-moon" aria-hidden="true">🌙</span>
+          <span class="theme-toggle-label-text">{{ copy.darkMode }}</span>
         </button>
       </div>
     </div>

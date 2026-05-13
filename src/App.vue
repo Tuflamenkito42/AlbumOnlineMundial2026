@@ -1,5 +1,5 @@
 <template>
-  <IonApp :class="{ dark: darkMode }">
+  <IonApp>
     <IonContent fullscreen class="app-content">
       <main class="app-shell">
         <CollectionOverview
@@ -25,7 +25,7 @@
           <div class="section-head">
             <div>
               <p class="section-kicker">{{ copy.grid.title }}</p>
-              <h2>{{ visibleStickers.length }} / {{ totalCount }} · {{ copy.grid.sortedByAlbum }}</h2>
+              <h2>{{ visibleAlbumCount }} / {{ totalCount }} · {{ copy.grid.sortedByAlbum }}</h2>
               <p>{{ copy.grid.tapToMark }}</p>
             </div>
             <div class="section-chip">{{ localeLabel }}</div>
@@ -39,7 +39,8 @@
             :locale="locale"
             :extra-tiers="extraTiers"
             @toggle="toggleSticker"
-            @select-extra="handleExtraSelection"
+            @toggle-tier="handleTierToggle"
+            @decrement-tier="handleTierDecrement"
           />
         </section>
       </main>
@@ -66,8 +67,10 @@ const {
   progressPercent,
   query,
   setExtraTier,
+  decrementExtraTier,
   toggleSticker,
   totalCount,
+  visibleAlbumCount,
   visibleStickers,
 } = useCollection(stickers);
 
@@ -258,8 +261,12 @@ function setLocale(value: Locale) {
   locale.value = value;
 }
 
-function handleExtraSelection(stickerNumber: number, tier: ExtraTier) {
+function handleTierToggle(stickerNumber: number, tier: ExtraTier) {
   setExtraTier(stickerNumber, tier);
+}
+
+function handleTierDecrement(stickerNumber: number, tier: ExtraTier) {
+  decrementExtraTier(stickerNumber, tier);
 }
 
 function canUseStorage() {
@@ -267,8 +274,11 @@ function canUseStorage() {
 }
 
 function applyTheme(value: boolean) {
+  // Usar nextTick para asegurar que se aplique después del renderizado
   document.documentElement.classList.toggle('dark', value);
   document.body.classList.toggle('dark', value);
+  // Forzar reflow para asegurar que se aplique
+  void document.documentElement.offsetHeight;
 }
 
 function loadTheme() {

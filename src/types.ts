@@ -1,6 +1,7 @@
 export type StickerFilter = 'all' | 'owned' | 'missing';
 export type Locale = 'es' | 'en' | 'ru' | 'zh';
 export type ExtraTier = 'Base' | 'Gold' | 'Silver' | 'Bronze';
+export type ExtraTierCounts = Partial<Record<ExtraTier, number>>;
 
 export interface Sticker {
   code: string;
@@ -9,16 +10,16 @@ export interface Sticker {
   name: string;
   country: string;
   section: string;
-  extraTier?: ExtraTier;
   category: string;
   group: string;
   series: 'FWC' | 'Teams' | 'History' | 'Extra' | 'CC' | 'Panini';
+  extraTier?: ExtraTier;
 }
 
 export interface PersistedProgress {
   version: number;
   ownedIds: number[];
-  extraTiers?: Record<string, ExtraTier>;
+  extraTiers?: Record<string, ExtraTierCounts | ExtraTier[]>;
   updatedAt: string;
 }
 

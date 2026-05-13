@@ -383,7 +383,17 @@ function deriveSticker(item: any, albumOrder: number): Sticker {
 
 const checklistRows = Array.isArray(checklistData) ? checklistData : [];
 const stickersFromChecklist = checklistRows
-  .filter((item: any) => typeof item?.id === 'string' && item.id !== 'No.' && item.id !== 'All')
+  .filter((item: any) => {
+    if (typeof item?.id !== 'string') {
+      return false;
+    }
+    const id = item.id.trim();
+    if (id === 'No.' || id === 'All') {
+      return false;
+    }
+    // Ignore scraped noise/footer rows such as "LastSticker.com".
+    return /^[A-Za-z0-9-]+$/.test(id);
+  })
   .map((item: any, index: number) => deriveSticker(item, index + 1));
 
 const sampleStickers: Sticker[] = stickersFromChecklist.slice(0, 200);
