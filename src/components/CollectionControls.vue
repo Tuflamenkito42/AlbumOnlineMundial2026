@@ -11,17 +11,17 @@
 
     <ion-segment
       :value="filter"
-      @ionChange="$emit('update:filter', (($event.detail.value ?? 'all').toString() as StickerFilter))"
+      @ionChange="$emit('update:filter', (($event.detail.value ?? 'missing').toString() as StickerFilter))"
       scrollable
     >
-      <ion-segment-button value="all">
-        <ion-label>{{ copy.all }}</ion-label>
+      <ion-segment-button value="missing">
+        <ion-label>{{ copy.missing }}</ion-label>
       </ion-segment-button>
       <ion-segment-button value="owned">
         <ion-label>{{ copy.owned }}</ion-label>
       </ion-segment-button>
-      <ion-segment-button value="missing">
-        <ion-label>{{ copy.missing }}</ion-label>
+      <ion-segment-button value="all">
+        <ion-label>{{ copy.all }}</ion-label>
       </ion-segment-button>
     </ion-segment>
 

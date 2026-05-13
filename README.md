@@ -37,3 +37,22 @@ App móvil nativa para iOS y Android creada con Vue 3, Ionic Vue y Capacitor par
 ## Sustituir los datos de ejemplo
 
 Edita `src/data/stickers.ts` y reemplaza la lista generada por la colección real cuando tengas el listado final del álbum.
+
+## Publicar gratis en GitHub Pages
+
+1. Sube este repositorio a GitHub.
+2. En GitHub, ve a `Settings` -> `Pages`.
+3. En `Build and deployment`, elige `GitHub Actions`.
+4. Crea el archivo `.github/workflows/deploy.yml` con el build de Vite y publicación de `dist/`.
+5. Abre la URL publicada que GitHub Pages te muestre.
+6. En iPhone, abre esa URL en Safari y usa `Compartir` -> `Añadir a pantalla de inicio`.
+
+### Comandos de referencia
+
+```bash
+npm run build
+```
+
+### Nota importante
+
+Este proyecto está configurado para GitHub Pages como sitio de repositorio en `/MundialCartas2026/`, así que el build y la PWA funcionan con esa ruta.

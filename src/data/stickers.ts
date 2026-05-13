@@ -396,8 +396,17 @@ const stickersFromChecklist = checklistRows
   })
   .map((item: any, index: number) => deriveSticker(item, index + 1));
 
-const sampleStickers: Sticker[] = stickersFromChecklist.slice(0, 200);
+const stickersFilteredByExtraTier = stickersFromChecklist.filter((sticker) => {
+  if (sticker.series !== 'Extra') {
+    return true;
+  }
 
-export const stickers: Sticker[] = stickersFromChecklist.length ? stickersFromChecklist : sampleStickers;
+  // Keep only base extra code (e.g. MS) and drop tier variants (MS-B, MS-S, MS-G).
+  return !/-(B|S|G)$/i.test(sticker.code);
+});
+
+const sampleStickers: Sticker[] = stickersFilteredByExtraTier.slice(0, 200);
+
+export const stickers: Sticker[] = stickersFilteredByExtraTier.length ? stickersFilteredByExtraTier : sampleStickers;
 
 export { sampleStickers };

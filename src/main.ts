@@ -15,3 +15,11 @@ const app = createApp(App);
 
 app.use(IonicVue);
 app.mount('#app');
+
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+	window.addEventListener('load', () => {
+		navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {
+			// Ignore registration failures so the app still works as a normal web app.
+		});
+	});
+}

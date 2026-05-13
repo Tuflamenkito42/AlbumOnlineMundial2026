@@ -2,6 +2,7 @@
   <IonApp>
     <IonContent fullscreen class="app-content">
       <main class="app-shell">
+        <LoadingScreen v-if="loading" />
         <CollectionOverview
           :owned-count="ownedCount"
           :missing-count="missingCount"
@@ -24,10 +25,13 @@
         <section class="section-shell ion-padding-horizontal ion-padding-bottom">
           <div class="section-head">
             <div>
-              <p class="section-kicker">{{ copy.grid.title }}</p>
-              <h2>{{ visibleAlbumCount }} / {{ totalCount }} · {{ copy.grid.sortedByAlbum }}</h2>
-              <p>{{ copy.grid.tapToMark }}</p>
-            </div>
+                <p class="section-kicker">{{ copy.grid.title }}</p>
+                <h2>
+                  {{ visibleAlbumCount }} / {{ totalCount }}
+                  <span v-if="copy.grid.sortedByAlbum"> · {{ copy.grid.sortedByAlbum }}</span>
+                </h2>
+                <p>{{ copy.grid.tapToMark }}</p>
+              </div>
             <div class="section-chip">{{ localeLabel }}</div>
           </div>
 
@@ -49,8 +53,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch, nextTick } from 'vue';
 import { IonApp, IonContent } from '@ionic/vue';
+import LoadingScreen from './components/LoadingScreen.vue';
 import CollectionControls from './components/CollectionControls.vue';
 import CollectionOverview from './components/CollectionOverview.vue';
 import StickerGrid from './components/StickerGrid.vue';
@@ -77,6 +82,8 @@ const {
 const darkMode = ref(false);
 const locale = ref<Locale>('es');
 
+const loading = ref(true);
+
 const themeKey = 'mundial-cartas-2026-theme';
 const localeKey = 'mundial-cartas-2026-locale';
 
@@ -84,8 +91,8 @@ const translations: Record<Locale, AppCopy> = {
   es: {
     overview: {
       eyebrow: 'Álbum digital',
-      title: 'Mundial Cartas 2026',
-      subtitle: 'Ordenado por país, con un tema claro y controles rápidos para seguir tu colección.',
+      title: 'Mundial 2026',
+      subtitle: '',
       language: 'Idioma',
       darkMode: 'Oscuro',
       lightMode: 'Claro',
@@ -106,7 +113,7 @@ const translations: Record<Locale, AppCopy> = {
     },
     grid: {
       title: 'Cromos',
-      sortedByAlbum: 'Ordenado por país',
+      sortedByAlbum: '',
       tapToMark: 'Toca una carta para marcarla como tuya.',
       emptyTitle: 'No hay resultados',
       emptyBody: 'Prueba con otro número, otro nombre o cambia el filtro.',
@@ -120,11 +127,11 @@ const translations: Record<Locale, AppCopy> = {
       importError: 'No se pudo importar el archivo.',
     },
   },
-  en: {
+    en: {
     overview: {
       eyebrow: 'Digital album',
-      title: 'World Cup Stickers 2026',
-      subtitle: 'Ordered by country, with a clearer theme and faster controls to track your collection.',
+      title: 'Mundial 2026',
+      subtitle: '',
       language: 'Language',
       darkMode: 'Dark',
       lightMode: 'Light',
@@ -145,7 +152,7 @@ const translations: Record<Locale, AppCopy> = {
     },
     grid: {
       title: 'Stickers',
-      sortedByAlbum: 'Sorted by country',
+      sortedByAlbum: '',
       tapToMark: 'Tap a card to mark it as owned.',
       emptyTitle: 'No results',
       emptyBody: 'Try another number, another name, or change the filter.',
@@ -159,11 +166,11 @@ const translations: Record<Locale, AppCopy> = {
       importError: 'The file could not be imported.',
     },
   },
-  ru: {
+    ru: {
     overview: {
       eyebrow: 'Цифровой альбом',
-      title: 'Стикеры ЧМ 2026',
-      subtitle: 'Сортировка по стране, более выразительная тема и быстрые элементы управления.',
+      title: 'Mundial 2026',
+      subtitle: '',
       language: 'Язык',
       darkMode: 'Тёмная',
       lightMode: 'Светлая',
@@ -184,7 +191,7 @@ const translations: Record<Locale, AppCopy> = {
     },
     grid: {
       title: 'Наклейки',
-      sortedByAlbum: 'Сортировка по стране',
+      sortedByAlbum: '',
       tapToMark: 'Нажми на карточку, чтобы отметить её как свою.',
       emptyTitle: 'Ничего не найдено',
       emptyBody: 'Попробуй другой номер, название или фильтр.',
@@ -198,11 +205,11 @@ const translations: Record<Locale, AppCopy> = {
       importError: 'Не удалось импортировать файл.',
     },
   },
-  zh: {
+    zh: {
     overview: {
       eyebrow: '数字贴纸册',
-      title: '2026 世界杯贴纸',
-      subtitle: '按国家排序，更清晰的主题，更快的收藏管理。',
+      title: 'Mundial 2026',
+      subtitle: '',
       language: '语言',
       darkMode: '深色',
       lightMode: '浅色',
@@ -223,7 +230,7 @@ const translations: Record<Locale, AppCopy> = {
     },
     grid: {
       title: '贴纸',
-      sortedByAlbum: '按国家排序',
+      sortedByAlbum: '',
       tapToMark: '点按卡片即可标记为已拥有。',
       emptyTitle: '没有结果',
       emptyBody: '试试别的编号、名称，或更换筛选条件。',
@@ -325,8 +332,13 @@ watch(locale, (value) => {
   document.documentElement.lang = value;
 });
 
-onMounted(() => {
+onMounted(async () => {
   loadTheme();
   loadLocale();
+  // small delay to show loading experience while theme/locale apply
+  await nextTick();
+  setTimeout(() => {
+    loading.value = false;
+  }, 180);
 });
 </script>

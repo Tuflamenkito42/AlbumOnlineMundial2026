@@ -109,4 +109,5 @@ function minusAria(tier: ExtraTier) {
 function formatAlbumCode(code: string) {
   return code.replace(/^([A-Za-z]+)(\d+)$/, (_, prefix: string, digits: string) => `${prefix.toUpperCase()} ${digits}`);
 }
+
 </script>

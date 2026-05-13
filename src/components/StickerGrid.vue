@@ -7,12 +7,24 @@
 
     <div v-else class="sticker-flow">
       <section v-for="block in blocks" :key="block.key" class="country-group">
-        <div class="section-divider">
-          <img v-if="block.image" class="section-divider-flag" :src="block.image.src" :alt="block.image.alt" />
-          <strong>{{ block.label }}</strong>
-        </div>
+        <button
+          type="button"
+          class="section-divider section-toggle"
+          :aria-expanded="isBlockOpen(block.key)"
+          :aria-controls="panelId(block.key)"
+          @click="toggleBlock(block.key)"
+        >
+          <span class="section-divider-main">
+            <img v-if="block.image" class="section-divider-flag" :src="block.image.src" :alt="block.image.alt" />
+            <strong>{{ block.label }}</strong>
+          </span>
+          <span class="section-divider-meta">
+            <span class="section-divider-count">{{ block.stickers.length }}</span>
+            <span class="section-chevron" :class="{ 'is-open': isBlockOpen(block.key) }">▾</span>
+          </span>
+        </button>
 
-        <div class="sticker-grid">
+        <div v-if="isBlockOpen(block.key)" :id="panelId(block.key)" class="sticker-grid">
           <StickerCard
             v-for="sticker in block.stickers"
             :key="sticker.albumOrder"
@@ -32,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import StickerCard from './StickerCard.vue';
 import type { AppCopy, ExtraTier, ExtraTierCounts, Locale, Sticker } from '../types';
 import { getCountryFlagImage, getSectionDisplayName } from '../utils/countryFlags';
@@ -52,6 +64,8 @@ const props = defineProps<{
   locale: Locale;
   extraTiers: Record<number, ExtraTierCounts>;
 }>();
+
+const openSections = ref<Set<string>>(new Set());
 
 function extraTierSum(counts: ExtraTierCounts | undefined): number {
   if (!counts) {
@@ -75,6 +89,24 @@ defineEmits<{
   (event: 'toggle-tier', number: number, tier: ExtraTier): void;
   (event: 'decrement-tier', number: number, tier: ExtraTier): void;
 }>();
+
+function isBlockOpen(key: string) {
+  return openSections.value.has(key);
+}
+
+function toggleBlock(key: string) {
+  const next = new Set(openSections.value);
+  if (next.has(key)) {
+    next.delete(key);
+  } else {
+    next.add(key);
+  }
+  openSections.value = next;
+}
+
+function panelId(key: string) {
+  return `panel-${key.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+}
 
 const blocks = computed<GridBlock[]>(() => {
   const result: GridBlock[] = [];
@@ -100,14 +132,33 @@ const blocks = computed<GridBlock[]>(() => {
   }
 
   if (extraStickers.length > 0) {
-    result.push({
+    const extraBlock: GridBlock = {
       key: 'section-extra-sticker',
       label: props.locale === 'en' ? 'Extra Sticker' : 'Extra Sticker',
       image: null,
       stickers: extraStickers,
-    });
+    };
+
+    // Insert the Extra Sticker block after the FIFA World Cup History block when present,
+    // so it appears right below "Historia de la Copa Mundial" in the accordion order.
+    const historyKey = 'section-FIFA World Cup History';
+    const historyIndex = result.findIndex((b) => b.key === historyKey);
+    if (historyIndex >= 0) {
+      result.splice(historyIndex + 1, 0, extraBlock);
+    } else {
+      result.push(extraBlock);
+    }
   }
 
   return result;
 });
+
+watch(
+  blocks,
+  (currentBlocks) => {
+    const validKeys = new Set(currentBlocks.map((block) => block.key));
+    openSections.value = new Set([...openSections.value].filter((key) => validKeys.has(key)));
+  },
+  { immediate: true },
+);
 </script>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title>Mundial 2026</title>
+  <desc>Icono simple para la app Mundial 2026</desc>
+  <rect width="512" height="512" rx="110" fill="#B9AFB0"/>
+  <rect x="64" y="64" width="384" height="384" rx="90" fill="#f7f2f3" stroke="#8f8587" stroke-width="16"/>
+  <circle cx="256" cy="188" r="70" fill="#1f2937"/>
+  <path d="M188 188h136M256 120v136M206 138l100 100M356 188h-136M256 188l-50 50M306 138l-100 100" stroke="#B9AFB0" stroke-width="18" stroke-linecap="round"/>
+  <text x="256" y="344" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700" fill="#1f2937">Mundial 2026</text>
+</svg>

@@ -76,7 +76,7 @@ export function useCollection(stickers: Sticker[]) {
   const ownedIds = ref<number[]>([]);
   const extraTiers = ref<Record<number, ExtraTierCounts>>({});
   const query = ref('');
-  const filter = ref<StickerFilter>('all');
+  const filter = ref<StickerFilter>('missing');
 
   onMounted(() => {
     const saved = loadProgress();
