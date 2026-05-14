@@ -149,6 +149,20 @@ const blocks = computed<GridBlock[]>(() => {
       result.push(extraBlock);
     }
   }
+  // Remove variant entries like BEL2s, BEL3s... and GER2s, GER3s... from Belgium/Germany blocks
+  for (const block of result) {
+    try {
+      if (block.key === 'section-Belgium') {
+        block.stickers = block.stickers.filter((sticker) => !/^BEL\d+s$/i.test(String(sticker.code ?? '')));
+      }
+
+      if (block.key === 'section-Germany') {
+        block.stickers = block.stickers.filter((sticker) => !/^GER\d+s$/i.test(String(sticker.code ?? '')));
+      }
+    } catch (e) {
+      // defensive: if sticker shape unexpected, skip filtering for that block
+    }
+  }
 
   return result;
 });

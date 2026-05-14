@@ -158,6 +158,12 @@ export function useCollection(stickers: Sticker[]) {
         }
 
         if (filter.value === 'missing' && owned) {
+          // If this is an Extra sticker that has been marked via extra tiers (colors),
+          // keep it visible in the "missing" list while also considering it owned.
+          if (sticker.series === 'Extra' && sticker.group === 'Extra' && extraTierTotalFor(sticker.albumOrder) > 0) {
+            return true;
+          }
+
           return false;
         }
 
